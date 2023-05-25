@@ -58,8 +58,8 @@ class Drive {
 	}
 
 	static async upload() {
-		for (var i = 0; i < this.files.length; i++) {
-			var name = this.files[i];
+		while (this.files.length > 0) {
+			var name = this.files[0];
 			var filename = path.join(".", "upload", name);
 
 			var stream = fs.createReadStream(filename);
