@@ -67,43 +67,46 @@ class Drive {
 
 			var offset = 0;
 
-			var file = await this.drive.files.create({
-				requestBody: {
-					name: name
-				},
-				media: {
-					body: stream
-				}
-			}, {
-				onUploadProgress: async function(event) {
-					context.sizeUploaded += event.bytesRead - offset;
+			await new Promise(async function(resolve, reject) {
+				var file = await context.drive.files.create({
+					requestBody: {
+						name: name
+					},
+					media: {
+						body: stream
+					}
+				}, {
+					onUploadProgress: async function(event) {
+						context.sizeUploaded += event.bytesRead - offset;
 
-					offset = event.bytesRead;
+						offset = event.bytesRead;
 
-					var percent = Math.floor(event.bytesRead / stats.size * 100 * 100) / 100;
+						var percent = Math.floor(event.bytesRead / stats.size * 100 * 100) / 100;
 
-					context.log(percent);
+						context.log(percent);
 
-					if (event.bytesRead == stats.size) {
-						await new Promise(async function(resolve, reject) {
-							while (true) {
-								var list = await context.list();
+						if (event.bytesRead == stats.size) {
+							await new Promise(async function(resolve2, reject2) {
+								while (true) {
+									var list = await context.list();
 
-								for (var i = 0; i < list.length; i++) {
-									if (list[i].name == name) {
-										return;
+									for (var i = 0; i < list.length; i++) {
+										if (list[i].name == name) {
+											return resolve2();
+										}
 									}
 								}
-							}
-						});
+							});
+							console.log("");
 
-						fs.unlinkSync(filename);
+							fs.unlinkSync(filename);
 
-						console.log();
+							context.read();
 
-						context.read();
+							return resolve();
+						}
 					}
-				}
+				});
 			});
 
 			this.filesUploaded += 1;
