@@ -142,7 +142,7 @@ class Drive {
 	}
 
 	static currentLeftTime() {
-		var spent = Date.now() - this.startTime;
+		var spent = Date.now() - this.currentTime;
 
 		var ms = spent/this.currentUploaded * (this.currentSize - this.currentUploaded);
 
