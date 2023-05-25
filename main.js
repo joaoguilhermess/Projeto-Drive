@@ -10,7 +10,7 @@ class Drive {
 
 		this.statistics();
 
-		this.upload();
+		await this.upload();
 	}
 
 	static auth() {
@@ -299,4 +299,14 @@ class Drive {
 	}
 }
 
-Drive.Init();
+async function main() {
+	while (true) {
+		try {
+			await Drive.Init();
+		} catch (e) {
+			console.error(e);
+		}
+	}
+}
+
+main();
