@@ -97,7 +97,7 @@ class Drive {
 									var list = await context.list();
 
 									for (var i = 0; i < list.length; i++) {
-										if (list[i].name == name) {
+										if (list[i].name == name && list[i].size == stats.size.toString()) {
 											return resolve2();
 										}
 									}
