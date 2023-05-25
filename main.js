@@ -89,9 +89,7 @@ class Drive {
 
 						offset = event.bytesRead;
 
-						var percent = Math.floor(event.bytesRead / stats.size * 100 * 100) / 100;
-
-						context.log(percent);
+						context.log();
 
 						if (event.bytesRead == stats.size) {
 							await new Promise(async function(resolve2, reject2) {
@@ -131,6 +129,12 @@ class Drive {
 		var spent = Date.now() - this.currentTime;
 
 		return this.formatTime(spent);
+	}
+
+	static percent() {
+		var percent = Math.floor(this.currentUploaded / this.currentSize * 100 * 100) / 100;
+
+		return percent;
 	}
 
 	static leftTime() {
@@ -187,7 +191,7 @@ class Drive {
 		return n;
 	}
 
-	static log(percent) {
+	static log() {
 		var t = "";
 
 		t += "\r";
@@ -227,7 +231,7 @@ class Drive {
 		t += " ";
 
 		t += "\x1b[33m";
-		t += percent;
+		t += this.percent();
 		t += "%";
 
 		t += "\x1b[0m";
