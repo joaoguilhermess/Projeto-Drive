@@ -8,6 +8,8 @@ class Drive {
 
 		this.read();
 
+		this.statistics();
+
 		this.upload();
 	}
 
@@ -33,13 +35,14 @@ class Drive {
 		var files = fs.readdirSync("./upload");
 
 		this.files = files;
-
-		this.statistics();
 	}
 
 	static statistics() {
 		this.startTime = Date.now();
 		this.sizeUploaded = 0;
+		this.currentTime = Date.now();
+		this.currentSize = 0;
+		this.currentUploaded = 0;
 		this.filesUploaded = 0;
 
 		this.totalSize = 0;
@@ -67,6 +70,10 @@ class Drive {
 
 			var offset = 0;
 
+			this.currentTime = Date.now();
+			this.currentSize = stats.size;
+			this.currentUploaded = 0;
+
 			await new Promise(async function(resolve, reject) {
 				var file = await context.drive.files.create({
 					requestBody: {
@@ -78,6 +85,7 @@ class Drive {
 				}, {
 					onUploadProgress: async function(event) {
 						context.sizeUploaded += event.bytesRead - offset;
+						context.currentUploaded += event.bytesRead - offset;
 
 						offset = event.bytesRead;
 
@@ -116,30 +124,13 @@ class Drive {
 	static spentTime() {
 		var spent = Date.now() - this.startTime;
 
-		var t = "";
+		return this.formatTime(spent);
+	}
 
-		var d = new Date(0, 0, 0, 0, 0, 0, spent + 24 * 60 * 60 * 1000);
+	static currentSpentTime() {
+		var spent = Date.now() - this.currentTime;
 
-		if (d.getDate() - 1) {
-			t += d.getDate() - 1 + "d ";
-		}
-
-		if (d.getHours()) {
-			t += d.getHours() + "h ";
-		}
-
-		if (d.getMinutes()) {
-			t += d.getMinutes() + "m ";
-		}
-
-		if (d.getSeconds()) {
-			t += d.getSeconds() + "s ";
-		}
-
-		if (d.getMilliseconds()) {
-			t += d.getMilliseconds() + "ms ";
-		}
-		return t;
+		return this.formatTime(spent);
 	}
 
 	static leftTime() {
@@ -147,33 +138,53 @@ class Drive {
 
 		var ms = spent/this.sizeUploaded * (this.totalSize - this.sizeUploaded);
 
-		// console.log(spent, this.sizeUploaded, this.totalSize, ms);
+		return this.formatTime(ms);
+	}
 
+	static currentLeftTime() {
+		var spent = Date.now() - this.startTime;
+
+		var ms = spent/this.currentUploaded * (this.currentSize - this.currentUploaded);
+
+		return this.formatTime(ms);
+	}
+
+	static formatTime(time) {
 		var t = "";
 
-		var d = new Date(0, 0, 0, 0, 0, 0, ms + 24 * 60 * 60 * 1000);
+		var d = new Date(0, 0, 0, 0, 0, 0, time + 24 * 60 * 60 * 1000);
 
 		if (d.getDate() - 1) {
-			t += d.getDate() - 1 + "d ";
+			t += this.formatNumber(d.getDate()) - 1 + "d ";
 		}
 
 		if (d.getHours()) {
-			t += d.getHours() + "h ";
+			t += this.formatNumber(d.getHours()) + "h ";
 		}
 
 		if (d.getMinutes()) {
-			t += d.getMinutes() + "m ";
+			t += this.formatNumber(d.getMinutes()) + "m ";
 		}
 
 		if (d.getSeconds()) {
-			t += d.getSeconds() + "s ";
+			t += this.formatNumber(d.getSeconds()) + "s ";
 		}
 
 		if (d.getMilliseconds()) {
-			t += d.getMilliseconds() + "ms ";
+			t += this.formatNumber(d.getMilliseconds(), 4) + "ms ";
 		}
 
 		return t;
+	}
+
+	static formatNumber(n, l = 2) {
+		n = n.toString();
+
+		while (n.length < l) {
+			n = " " + n;
+		}
+
+		return n;
 	}
 
 	static log(percent) {
@@ -183,25 +194,32 @@ class Drive {
 
 		t += "\x1b[1m";
 		t += "\x1b[30m";
-		t += "Time Spent:";
+		t += "Total:";
 		t += " ";
 		t += "\x1b[0m";
 		t += this.spentTime();
 
 		t += "\x1b[1m";
 		t += "\x1b[30m";
-		t += "Files Left:";
+		t += "Current:"
+		t += " ";
+		t += "\x1b[0m";
+		t += this.currentSpentTime();
+
+		t += "\x1b[1m";
+		t += "\x1b[30m";
+		t += "Files:";
 		t += " ";
 		t += "\x1b[0m";
 		t += "\x1b[33m";
 		t += this.files.length;
 		t += "\x1b[0m";
-		
+
 		t += " ";
 
 		t += "\x1b[1m";
 		t += "\x1b[30m";
-		t += "Current:";
+		t += "Filename:";
 		t += "\x1b[0m";
 		t += " ";
 		t += this.files[0];
@@ -218,12 +236,19 @@ class Drive {
 
 		t += "\x1b[1m";
 		t += "\x1b[30m";
-		t += "Time Left:";
+		t += "Current:";
+		t += " ";
+		t += "\x1b[0m";
+		t += this.currentLeftTime();
+
+		t += "\x1b[1m";
+		t += "\x1b[30m";
+		t += "Total:";
 		t += " ";
 		t += "\x1b[0m";
 		t += this.leftTime();
 
-		while (t.length - 71 < process.stdout.columns) {
+		while (t.length - 97 < process.stdout.columns) {
 			t += " ";
 		}
 
