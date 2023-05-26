@@ -300,12 +300,10 @@ class Drive {
 }
 
 async function main() {
-	while (true) {
-		try {
-			await Drive.Init();
-		} catch (e) {
-			console.error(e);
-		}
+	try {
+		await Drive.Init();
+	} catch (e) {
+		main();
 	}
 }
 
