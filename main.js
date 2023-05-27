@@ -115,6 +115,7 @@ class Drive {
 								}
 							}
 						});
+						break;
 					} catch (e) {
 						console.error(e);
 					}
