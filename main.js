@@ -75,44 +75,50 @@ class Drive {
 			this.currentUploaded = 0;
 
 			await new Promise(async function(resolve, reject) {
-				var file = await context.drive.files.create({
-					requestBody: {
-						name: name
-					},
-					media: {
-						body: stream
-					}
-				}, {
-					onUploadProgress: async function(event) {
-						context.sizeUploaded += event.bytesRead - offset;
-						context.currentUploaded += event.bytesRead - offset;
+				while (true) {
+					try {
+						var file = await context.drive.files.create({
+							requestBody: {
+								name: name
+							},
+							media: {
+								body: stream
+							}
+						}, {
+							onUploadProgress: async function(event) {
+								context.sizeUploaded += event.bytesRead - offset;
+								context.currentUploaded += event.bytesRead - offset;
 
-						offset = event.bytesRead;
+								offset = event.bytesRead;
 
-						context.log();
+								context.log();
 
-						if (event.bytesRead == stats.size) {
-							await new Promise(async function(resolve2, reject2) {
-								while (true) {
-									var list = await context.list();
+								if (event.bytesRead == stats.size) {
+									await new Promise(async function(resolve2, reject2) {
+										while (true) {
+											var list = await context.list();
 
-									for (var i = 0; i < list.length; i++) {
-										if (list[i].name == name && list[i].size == stats.size.toString()) {
-											return resolve2();
+											for (var i = 0; i < list.length; i++) {
+												if (list[i].name == name && list[i].size == stats.size.toString()) {
+													return resolve2();
+												}
+											}
 										}
-									}
+									});
+									console.log("");
+
+									fs.unlinkSync(filename);
+
+									context.read();
+
+									return resolve();
 								}
-							});
-							console.log("");
-
-							fs.unlinkSync(filename);
-
-							context.read();
-
-							return resolve();
-						}
+							}
+						});
+					} catch (e) {
+						console.error(e);
 					}
-				});
+				}
 			});
 
 			this.filesUploaded += 1;
@@ -299,12 +305,4 @@ class Drive {
 	}
 }
 
-async function main() {
-	try {
-		await Drive.Init();
-	} catch (e) {
-		main();
-	}
-}
-
-main();
+Drive.Init();
