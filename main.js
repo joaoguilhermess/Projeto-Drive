@@ -4,7 +4,7 @@ import fs from "fs";
 
 class Drive {
 	static async Init() {
-		this.auth();
+		this.auth("credentials2.json");
 
 		this.read();
 
@@ -13,9 +13,9 @@ class Drive {
 		await this.upload();
 	}
 
-	static auth() {
+	static auth(file) {
 		var authorization = new google.auth.GoogleAuth({
-			keyFile: "credentials.json",
+			keyFile: file,
 			scopes: ["https://www.googleapis.com/auth/drive"]
 		});
 
@@ -118,6 +118,7 @@ class Drive {
 						break;
 					} catch (e) {
 						console.error(e);
+						break;
 					}
 				}
 			});
@@ -142,6 +143,39 @@ class Drive {
 		var percent = Math.floor(this.currentUploaded / this.currentSize * 100 * 100) / 100;
 
 		return percent;
+	}
+
+	static bytes() {
+		var t = "";
+
+		var a = this.currentSize.toString();
+		var b = this.currentUploaded.toString();
+
+		if (a > 1024 * 1024) {
+			a = Math.floor(a / (1024 * 1024) * 100) / 100;
+			a += "mb";
+		} else if (a > 1024) {
+			a = Math.floor(a / 1024 * 100) / 100;
+			a += "kb";
+		} else {
+			a += "b";
+		}
+
+		if (b > 1024 * 1024) {
+			b = Math.floor(b / (1024 * 1024) * 100) / 100;
+			b += "mb";
+		} else if (b > 1024) {
+			b = Math.floor(b / 1024 * 100) / 100;
+			b += "kb";
+		} else {
+			b += "b";
+		}
+
+		t += b;
+		t += "/";
+		t += a;
+
+		return t;
 	}
 
 	static leftTime() {
@@ -241,7 +275,10 @@ class Drive {
 		t += this.percent();
 		t += "%";
 
+		t += " ";
+
 		t += "\x1b[0m";
+		t += this.bytes();
 
 		t += " ";
 
