@@ -70,9 +70,12 @@ class Drive {
 
 			var offset = 0;
 
+			var instant = Date.now();
+
 			this.currentTime = Date.now();
 			this.currentSize = stats.size;
 			this.currentUploaded = 0;
+			this.speed = 0;
 
 			await new Promise(async function(resolve, reject) {
 				while (true) {
@@ -88,6 +91,10 @@ class Drive {
 							onUploadProgress: async function(event) {
 								context.sizeUploaded += event.bytesRead - offset;
 								context.currentUploaded += event.bytesRead - offset;
+
+								context.speed = (event.bytesRead - offset) / (Date.now() - instant) * 1000;
+
+								instant = Date.now();
 
 								offset = event.bytesRead;
 
@@ -145,39 +152,6 @@ class Drive {
 		return percent;
 	}
 
-	static bytes() {
-		var t = "";
-
-		var a = this.currentSize.toString();
-		var b = this.currentUploaded.toString();
-
-		if (a > 1024 * 1024) {
-			a = Math.floor(a / (1024 * 1024) * 100) / 100;
-			a += "mb";
-		} else if (a > 1024) {
-			a = Math.floor(a / 1024 * 100) / 100;
-			a += "kb";
-		} else {
-			a += "b";
-		}
-
-		if (b > 1024 * 1024) {
-			b = Math.floor(b / (1024 * 1024) * 100) / 100;
-			b += "mb";
-		} else if (b > 1024) {
-			b = Math.floor(b / 1024 * 100) / 100;
-			b += "kb";
-		} else {
-			b += "b";
-		}
-
-		t += b;
-		t += "/";
-		t += a;
-
-		return t;
-	}
-
 	static leftTime() {
 		var spent = Date.now() - this.startTime;
 
@@ -232,6 +206,22 @@ class Drive {
 		return n;
 	}
 
+	static formatSize(size) {
+		var t = "";
+
+		if (size > 1024 * 1024) {
+			t = Math.floor(size / (1024 * 1024) * 100) / 100;
+			t += "mb";
+		} else if (size > 1024) {
+			t = Math.floor(size / 1024 * 100) / 100;
+			t += "kb";
+		} else {
+			t += "b";
+		}
+
+		return t;
+	}
+
 	static log() {
 		var t = "";
 
@@ -278,7 +268,14 @@ class Drive {
 		t += " ";
 
 		t += "\x1b[0m";
-		t += this.bytes();
+		t += this.formatSize(this.currentUploaded);
+		t += "/";
+		t += this.formatSize(this.currentSize);
+
+		t += " ";
+
+		t += this.formatSize(this.speed);
+		t += "/s";
 
 		t += " ";
 
