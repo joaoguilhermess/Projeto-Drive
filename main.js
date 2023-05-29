@@ -84,7 +84,7 @@ class Drive {
 	}
 
 	static async upload() {
-		while (this.files.length - 1> this.index) {
+		while (this.files.length > this.index) {
 			var name = this.files[this.index];
 
 			var filename = path.join(".", "upload", name);
