@@ -337,6 +337,10 @@ class Drive {
 			t += " ";
 		}
 
+		while (t.length - 110 > process.stdout.columns) {
+			t = t.slice(0, -1);
+		}
+
 		process.stdout.write(t);
 	}
 
