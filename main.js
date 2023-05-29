@@ -97,12 +97,9 @@ class Drive {
 
 			var offset = 0;
 
-			var instant = Date.now();
-
 			this.currentTime = Date.now();
 			this.currentSize = stats.size;
 			this.currentUploaded = 0;
-			this.speed = 0;
 
 			await new Promise(async function(resolve, reject) {
 				while (true) {
@@ -118,10 +115,6 @@ class Drive {
 							onUploadProgress: async function(event) {
 								context.sizeUploaded += event.bytesRead - offset;
 								context.currentUploaded += event.bytesRead - offset;
-
-								context.speed = (event.bytesRead - offset) / (Date.now() - instant) * 1000;
-
-								instant = Date.now();
 
 								offset = event.bytesRead;
 
@@ -188,6 +181,10 @@ class Drive {
 		var percent = Math.floor(this.currentUploaded / this.currentSize * 100 * 100) / 100;
 
 		return percent;
+	}
+
+	static speed() {
+		return this.formatSize(Math.floor(this.currentUploaded/(Date.now() - this.currentTime) * 1000 * 100) / 100);
 	}
 
 	static leftTime() {
@@ -292,7 +289,7 @@ class Drive {
 
 		t += "\x1b[1m";
 		t += "\x1b[30m";
-		t += "Filename:";
+		t += "Name:";
 		t += "\x1b[0m";
 		t += " ";
 		t += this.files[this.index];
@@ -312,7 +309,12 @@ class Drive {
 
 		t += " ";
 
-		t += this.formatSize(this.speed);
+		t += "\x1b[1m";
+		t += "\x1b[30m";
+		t += "Speed:";
+		t += "\x1b[0m";
+		t += " ";
+		t += this.speed();
 		t += "/s";
 
 		t += " ";
@@ -331,7 +333,7 @@ class Drive {
 		t += "\x1b[0m";
 		t += this.leftTime();
 
-		while (t.length - 97 < process.stdout.columns) {
+		while (t.length - 110 < process.stdout.columns) {
 			t += " ";
 		}
 
