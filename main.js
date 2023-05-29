@@ -106,7 +106,7 @@ class Drive {
 
 			await new Promise(async function(resolve, reject) {
 				while (true) {
-					// try {
+					try {
 						var file = await context.drive.files.create({
 							requestBody: {
 								name: name
@@ -137,18 +137,16 @@ class Drive {
 									await new Promise(function(resolve2, reject2) {
 										setTimeout(resolve2, 250);
 									});
-
-									// context.read();
-
+									
 									return resolve();
 								}
 							}
 						});
 						break;
-					// } catch (e) {
-					// 	console.error(e);
-					// 	break;
-					// }
+					} catch (e) {
+						console.error(e);
+						break;
+					}
 				}
 			});
 
