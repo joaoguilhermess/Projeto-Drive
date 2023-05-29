@@ -32,6 +32,32 @@ class Drive {
 			fs.mkdirSync("./upload");
 		}
 
+		var result = [];
+
+		var files = fs.readdirSync("./upload");
+
+		if (this.index == undefined) {
+			this.index = 0;
+		}
+
+		for (var i = this.index; i < files.length; i++) {
+			var stats = fs.lstatSync(path.join("./upload", files[i]));
+
+			if (stats.isDirectory()) {
+				var list = fs.readdirSync(path.join("./upload", files[i]));
+
+				for (var l = 0; l < list.length; l++) {
+					var stats = fs.lstatSync(path.join("./upload", files[i], list[l]));
+
+					if (stats.isFile()) {
+						fs.renameSync(path.join("./upload", files[i], list[l]), path.join("./upload", list[l]));
+					}
+				}
+
+				fs.rmdirSync(path.join("./upload", files[i]));
+			}
+		}
+
 		var files = fs.readdirSync("./upload");
 
 		this.files = files;
@@ -58,8 +84,9 @@ class Drive {
 	}
 
 	static async upload() {
-		while (this.files.length > 0) {
-			var name = this.files[0];
+		while (this.files.length - 1> this.index) {
+			var name = this.files[this.index];
+
 			var filename = path.join(".", "upload", name);
 
 			var stream = fs.createReadStream(filename);
@@ -79,7 +106,7 @@ class Drive {
 
 			await new Promise(async function(resolve, reject) {
 				while (true) {
-					try {
+					// try {
 						var file = await context.drive.files.create({
 							requestBody: {
 								name: name
@@ -101,36 +128,49 @@ class Drive {
 								context.log();
 
 								if (event.bytesRead == stats.size) {
-									await new Promise(async function(resolve2, reject2) {
-										while (true) {
-											var list = await context.list();
+									context.index += 1;
 
-											for (var i = 0; i < list.length; i++) {
-												if (list[i].name == name && list[i].size == stats.size.toString()) {
-													return resolve2();
-												}
-											}
-										}
-									});
 									console.log("");
 
-									fs.unlinkSync(filename);
+									context.delete(name, stats.size.toString(), filename);
 
-									context.read();
+									await new Promise(function(resolve2, reject2) {
+										setTimeout(resolve2, 250);
+									});
+
+									// context.read();
 
 									return resolve();
 								}
 							}
 						});
 						break;
-					} catch (e) {
-						console.error(e);
-						break;
-					}
+					// } catch (e) {
+					// 	console.error(e);
+					// 	break;
+					// }
 				}
 			});
 
 			this.filesUploaded += 1;
+		}
+	}
+
+	static async delete(name, size, filename) {
+		while (true) {
+			var list = await this.list();
+
+			for (var i = 0; i < list.length; i++) {
+				if (list[i].name == name && list[i].size == size) {
+					fs.unlinkSync(filename);
+
+					this.read();
+
+					this.index -= 1;
+
+					return;
+				}
+			}
 		}
 	}
 
@@ -247,7 +287,7 @@ class Drive {
 		t += " ";
 		t += "\x1b[0m";
 		t += "\x1b[33m";
-		t += this.files.length;
+		t += this.files.length - this.index;
 		t += "\x1b[0m";
 
 		t += " ";
@@ -257,7 +297,7 @@ class Drive {
 		t += "Filename:";
 		t += "\x1b[0m";
 		t += " ";
-		t += this.files[0];
+		t += this.files[this.index];
 
 		t += " ";
 
@@ -302,8 +342,9 @@ class Drive {
 
 	static async list() {
 		var list = await this.drive.files.list({
-			fields: "files(*)"
+			fields: "files(name, size)"
 		});
+			// fields: "files(*)"
 
 		return list.data.files;
 	}
@@ -333,7 +374,7 @@ class Drive {
 		});
 	}
 
-	static async delete(id) {
+	static async delete2(id) {
 		return this.drive.files.delete({
 			fileId: id
 		});
