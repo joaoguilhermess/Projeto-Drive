@@ -36,11 +36,7 @@ class Drive {
 
 		var files = fs.readdirSync("./upload");
 
-		if (this.index == undefined) {
-			this.index = 0;
-		}
-
-		for (var i = this.index; i < files.length; i++) {
+		for (var i = 0; i < files.length; i++) {
 			var stats = fs.lstatSync(path.join("./upload", files[i]));
 
 			if (stats.isDirectory()) {
@@ -84,8 +80,8 @@ class Drive {
 	}
 
 	static async upload() {
-		while (this.files.length > this.index) {
-			var name = this.files[this.index];
+		while (this.files.length > 0) {
+			var name = this.files[0];
 
 			var filename = path.join(".", "upload", name);
 
@@ -121,14 +117,23 @@ class Drive {
 								context.log();
 
 								if (event.bytesRead == stats.size) {
-									context.index += 1;
-
 									console.log("");
 
-									context.delete(name, stats.size.toString(), filename);
-
 									await new Promise(function(resolve2, reject2) {
-										setTimeout(resolve2, 250);
+										// stream.on("error", function() {
+											// console.log("error", name);
+										// });
+
+										// stream.on("end", function() {
+											// console.log("end", name);
+										// });
+
+										stream.on("close", function() {
+											// console.log("close", name);
+											context.delete(name, stats.size.toString(), filename);
+
+											setTimeout(resolve2, 250);
+										});
 									});
 									
 									return resolve();
@@ -137,8 +142,9 @@ class Drive {
 						});
 						break;
 					} catch (e) {
-						console.error(e);
-						break;
+						await new Promise(function(resolve3, reject3) {
+							setTimeout(resolve3, 250);
+						});
 					}
 				}
 			});
@@ -148,21 +154,11 @@ class Drive {
 	}
 
 	static async delete(name, size, filename) {
-		while (true) {
-			var list = await this.list();
+		fs.unlinkSync(filename);
 
-			for (var i = 0; i < list.length; i++) {
-				if (list[i].name == name && list[i].size == size) {
-					fs.unlinkSync(filename);
+		this.read();
 
-					this.read();
-
-					this.index -= 1;
-
-					return;
-				}
-			}
-		}
+		return;
 	}
 
 	static spentTime() {
@@ -184,7 +180,13 @@ class Drive {
 	}
 
 	static speed() {
-		return this.formatSize(Math.floor(this.currentUploaded/(Date.now() - this.currentTime) * 1000 * 100) / 100);
+		var s = this.currentUploaded / (Date.now() - this.currentTime) * 1000;
+
+		if (s > this.currentUploaded) {
+			s = this.currentUploaded;
+		}
+
+		return this.formatSize(Math.floor(s * 100) / 100);
 	}
 
 	static leftTime() {
@@ -282,7 +284,7 @@ class Drive {
 		t += " ";
 		t += "\x1b[0m";
 		t += "\x1b[33m";
-		t += this.files.length - this.index;
+		t += this.files.length;
 		t += "\x1b[0m";
 
 		t += " ";
@@ -292,7 +294,7 @@ class Drive {
 		t += "Name:";
 		t += "\x1b[0m";
 		t += " ";
-		t += this.files[this.index];
+		t += this.files[0];
 
 		t += " ";
 
