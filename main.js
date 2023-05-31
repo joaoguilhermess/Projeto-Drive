@@ -91,11 +91,14 @@ class Drive {
 
 			var context = this;
 
-			var offset = 0;
+			var interval = Date.now();
 
 			this.currentTime = Date.now();
 			this.currentSize = stats.size;
 			this.currentUploaded = 0;
+			this.currentInterval = 0;
+			this.currentBytes = 0;
+			this.currentLastSpeed = 0;
 
 			await new Promise(async function(resolve, reject) {
 				while (true) {
@@ -109,10 +112,14 @@ class Drive {
 							}
 						}, {
 							onUploadProgress: async function(event) {
-								context.sizeUploaded += event.bytesRead - offset;
-								context.currentUploaded += event.bytesRead - offset;
+								context.sizeUploaded += event.bytesRead;
+								context.currentBytes = event.bytesRead - context.currentUploaded;
 
-								offset = event.bytesRead;
+								context.currentUploaded = event.bytesRead;
+
+								context.currentInterval = Date.now() - interval;
+
+								interval = Date.now();
 
 								context.log();
 
@@ -180,13 +187,13 @@ class Drive {
 	}
 
 	static speed() {
-		var s = this.currentUploaded / (Date.now() - this.currentTime) * 1000;
+		var s = this.currentBytes / (this.currentInterval) * 1000;
 
-		if (s > this.currentUploaded) {
-			s = this.currentUploaded;
-		}
+		var s2 = (this.currentLastSpeed + s)/2
 
-		return this.formatSize(Math.floor(s * 100) / 100);
+		this.currentLastSpeed = s;
+
+		return this.formatSize(Math.floor(s2 * 100) / 100);
 	}
 
 	static leftTime() {
