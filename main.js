@@ -127,17 +127,10 @@ class Drive {
 									console.log("");
 
 									await new Promise(function(resolve2, reject2) {
-										// stream.on("error", function() {
-											// console.log("error", name);
-										// });
-
-										// stream.on("end", function() {
-											// console.log("end", name);
-										// });
-
 										stream.on("close", function() {
-											// console.log("close", name);
-											context.delete(name, stats.size.toString(), filename);
+											fs.unlinkSync(filename);
+
+											context.read();
 
 											setTimeout(resolve2, 250);
 										});
@@ -158,14 +151,6 @@ class Drive {
 
 			this.filesUploaded += 1;
 		}
-	}
-
-	static async delete(name, size, filename) {
-		fs.unlinkSync(filename);
-
-		this.read();
-
-		return;
 	}
 
 	static spentTime() {
