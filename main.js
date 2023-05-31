@@ -112,7 +112,7 @@ class Drive {
 							}
 						}, {
 							onUploadProgress: async function(event) {
-								context.sizeUploaded += event.bytesRead;
+								context.sizeUploaded += event.bytesRead - context.currentUploaded;
 								context.currentBytes = event.bytesRead - context.currentUploaded;
 
 								context.currentUploaded = event.bytesRead;
