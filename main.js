@@ -359,6 +359,7 @@ class Drive {
 
 		t += "\x1b[33m";
 		t += this.totalPercent();
+
 		t += "%";
 
 		t += "\x1b[0m";
