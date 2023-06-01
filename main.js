@@ -258,21 +258,24 @@ class Drive {
 
 		t += "\x1b[1m";
 		t += "\x1b[30m";
-		t += "Total:";
+		t += "T:";
+		// t += "Total:";
 		t += " ";
 		t += "\x1b[0m";
 		t += this.spentTime();
 
 		t += "\x1b[1m";
 		t += "\x1b[30m";
-		t += "Current:"
+		t += "C:"
+		// t += "Current:"
 		t += " ";
 		t += "\x1b[0m";
 		t += this.currentSpentTime();
 
 		t += "\x1b[1m";
 		t += "\x1b[30m";
-		t += "Files:";
+		t += "F:";
+		// t += "Files:";
 		t += " ";
 		t += "\x1b[0m";
 		t += "\x1b[33m";
@@ -283,7 +286,8 @@ class Drive {
 
 		t += "\x1b[1m";
 		t += "\x1b[30m";
-		t += "Name:";
+		t += "N:";
+		// t += "Name:";
 		t += "\x1b[0m";
 		t += " ";
 		t += this.files[0];
@@ -296,16 +300,10 @@ class Drive {
 
 		t += " ";
 
-		t += "\x1b[0m";
-		t += this.formatSize(this.currentUploaded);
-		t += "/";
-		t += this.formatSize(this.currentSize);
-
-		t += " ";
-
 		t += "\x1b[1m";
 		t += "\x1b[30m";
-		t += "Speed:";
+		t += "S:";
+		// t += "Speed:";
 		t += "\x1b[0m";
 		t += " ";
 		t += this.speed();
@@ -315,23 +313,49 @@ class Drive {
 
 		t += "\x1b[1m";
 		t += "\x1b[30m";
-		t += "Current:";
+		t += "C:";
+		// t += "Current:";
 		t += " ";
 		t += "\x1b[0m";
 		t += this.currentLeftTime();
 
 		t += "\x1b[1m";
 		t += "\x1b[30m";
-		t += "Total:";
+		t += "T:";
+		// t += "Total:";
 		t += " ";
 		t += "\x1b[0m";
 		t += this.leftTime();
+		
+		t += " ";
 
-		while (t.length - 110 < process.stdout.columns) {
+		t += "\x1b[1m";
+		t += "\x1b[30m";
+		t += "C:";
+		t += " ";
+		t += "\x1b[0m";
+		t += this.formatSize(this.currentUploaded);
+		t += "/";
+		t += this.formatSize(this.currentSize);
+
+		t += " ";
+
+		t += "\x1b[1m";
+		t += "\x1b[30m";
+		t += "T:";
+		t += " ";
+		t += "\x1b[0m";
+		t += this.formatSize(this.sizeUploaded);
+		t += "/";
+		t += this.formatSize(this.totalSize);
+
+		var offset = 132;
+
+		while (t.length - offset < process.stdout.columns) {
 			t += " ";
 		}
 
-		while (t.length - 110 > process.stdout.columns) {
+		while (t.length - offset > process.stdout.columns) {
 			t = t.slice(0, -1);
 		}
 
