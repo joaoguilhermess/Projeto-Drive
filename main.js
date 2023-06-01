@@ -165,7 +165,7 @@ class Drive {
 		return this.formatTime(spent);
 	}
 
-	static percent() {
+	static currentPercent() {
 		var percent = Math.floor(this.currentUploaded / this.currentSize * 100 * 100) / 100;
 
 		return percent;
@@ -195,6 +195,12 @@ class Drive {
 		var ms = spent/this.currentUploaded * (this.currentSize - this.currentUploaded);
 
 		return this.formatTime(ms);
+	}
+
+	static totalPercent() {
+		var percent = Math.floor(this.sizeUploaded / this.totalSize * 100 * 100) / 100;
+
+		return percent;
 	}
 
 	static formatTime(time) {
@@ -295,7 +301,7 @@ class Drive {
 		t += " ";
 
 		t += "\x1b[33m";
-		t += this.percent();
+		t += this.currentPercent();
 		t += "%";
 
 		t += " ";
@@ -348,8 +354,16 @@ class Drive {
 		t += this.formatSize(this.sizeUploaded);
 		t += "/";
 		t += this.formatSize(this.totalSize);
+		
+		t += " ";
 
-		var offset = 132;
+		t += "\x1b[33m";
+		t += this.totalPercent();
+		t += "%";
+
+		t += "\x1b[0m";
+
+		var offset = 141;
 
 		while (t.length - offset < process.stdout.columns) {
 			t += " ";
