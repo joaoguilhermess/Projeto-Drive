@@ -108,10 +108,12 @@ class Drive {
 								name: name
 							},
 							media: {
-								body: stream
+								body: stream,
+								size: stats.size
 							}
 						}, {
 							onUploadProgress: async function(event) {
+								// console.log(event);
 								context.sizeUploaded += event.bytesRead - context.currentUploaded;
 								context.currentBytes = event.bytesRead - context.currentUploaded;
 
@@ -265,7 +267,6 @@ class Drive {
 		t += "\x1b[1m";
 		t += "\x1b[30m";
 		t += "T:";
-		// t += "Total:";
 		t += " ";
 		t += "\x1b[0m";
 		t += this.spentTime();
@@ -273,7 +274,6 @@ class Drive {
 		t += "\x1b[1m";
 		t += "\x1b[30m";
 		t += "C:"
-		// t += "Current:"
 		t += " ";
 		t += "\x1b[0m";
 		t += this.currentSpentTime();
@@ -281,7 +281,6 @@ class Drive {
 		t += "\x1b[1m";
 		t += "\x1b[30m";
 		t += "F:";
-		// t += "Files:";
 		t += " ";
 		t += "\x1b[0m";
 		t += "\x1b[33m";
@@ -293,7 +292,6 @@ class Drive {
 		t += "\x1b[1m";
 		t += "\x1b[30m";
 		t += "N:";
-		// t += "Name:";
 		t += "\x1b[0m";
 		t += " ";
 		t += this.files[0];
@@ -309,7 +307,6 @@ class Drive {
 		t += "\x1b[1m";
 		t += "\x1b[30m";
 		t += "S:";
-		// t += "Speed:";
 		t += "\x1b[0m";
 		t += " ";
 		t += this.speed();
@@ -320,7 +317,6 @@ class Drive {
 		t += "\x1b[1m";
 		t += "\x1b[30m";
 		t += "C:";
-		// t += "Current:";
 		t += " ";
 		t += "\x1b[0m";
 		t += this.currentLeftTime();
@@ -328,7 +324,6 @@ class Drive {
 		t += "\x1b[1m";
 		t += "\x1b[30m";
 		t += "T:";
-		// t += "Total:";
 		t += " ";
 		t += "\x1b[0m";
 		t += this.leftTime();
@@ -368,10 +363,6 @@ class Drive {
 
 		while (t.length - offset < process.stdout.columns) {
 			t += " ";
-		}
-
-		while (t.length - offset > process.stdout.columns) {
-			t = t.slice(0, -1);
 		}
 
 		process.stdout.write(t);
