@@ -70,8 +70,21 @@ class Drive {
 		this.files = list;
 	}
 
+	static getSize() {
+		this.totalSize = 0;
+		this.totalSizeUploaded = 0;
+
+		for (var i = 0; i < this.files.length; i++) {
+			var stats = fs.lstatSync(path.join("./", "upload", this.files[i]));
+
+			this.totalSize += stats.size;
+		}
+	}
+
 	static async startUploader() {
 		Log.start();
+
+		this.startTime = Date.now();
 
 		for (var a = 0; a < this.accounts.length; a++) {
 			this.authDrive(this.accounts[a]);
@@ -82,44 +95,74 @@ class Drive {
 
 			this.getFiles();
 
+			this.getSize();
+
 			for (var f = 0; f < this.files.length; f++) {
 				var filename = path.join("./", "upload", this.files[f]);
 
 				var stats = fs.lstatSync(filename);
 
 				if (this.info.storageQuota.limit < this.info.storageQuota.usage) {
-					var stream = fs.createReadStream(filename);
+					while (true) {
+						try {
+							var stream = fs.createReadStream(filename);
 
-					Log.next();
+							this.currentFile = this.files[f];
+							this.currentIndex = f;
+							this.currentSize = stats.size;
+							this.currentSizeUploaded = 0;
+							this.currentInstant = 0;
+							this.currentBytes = 0;
 
-					this.currentFile = this.files[f];
-					this.currentIndex = f;
-					this.currentSize = stats.size;
-					this.currentSizeUploaded = 0;
+							var last = Date.now();
 
-					var context = this;
-					await new Promise(function(resolve, reject) {
-						context.drive.files.create({
-							requestBody: {
-								name: context.files[f]
-							},
-							media: {
-								body: stream
-							}
-						}, {
-							onUploadProgress: function(event) {
-								context.currentSizeUploaded = event.bytesRead;
+							var context = this;
+							await new Promise(function(resolve, reject) {
+								context.drive.files.create({
+									requestBody: {
+										name: context.files[f]
+									},
+									media: {
+										body: stream
+									}
+								}, {
+									onUploadProgress: function(event) {
+										context.currentBytes = event.bytesRead - context.currentSizeUploaded;
 
-								if (event.bytesRead == stats.size) {
-									stream.on("close", function() {
-										setTimeout(resolve, 250);
-									});
-								}
-							}
-						});
-					});
+										context.totalSizeUploaded += context.currentBytes;
+
+										context.currentSizeUploaded = event.bytesRead;
+
+										context.currentInstant = Date.now() - last;
+
+
+										last = Date.now();
+
+										if (event.bytesRead == stats.size) {
+											stream.on("close", function() {
+												setTimeout(resolve, 250);
+											});
+										}
+									}
+								});
+							});
+
+							this.totalDriveSizeUsed += stats.size;
+							this.totalDriveSizeFree = this.totalDriveSize - this.totalDriveSizeUsed;
+
+							break;
+						} catch (e) {
+							console.error(e);
+							
+							return await new Promise(function(resolve, reject) {
+								setTimeout(resolve, 250);
+							});
+						}
+					}
 
 					fs.unlinkSync(path.join("./", "upload", this.files[f]));
+
+					Log.next();
 				}
 			}
 		}
@@ -176,16 +219,47 @@ class Util {
 
 		return t;
 	}
+
+	static formatTime(time) {
+		var t = [];
+
+		var d = new Date(0, 0, 0, 0, 0, 0, time + 24 * 60 * 60 * 1000);
+
+		if (d.getDate() - 1) {
+			t.push(d.getDate() - 1 + "d");
+		}
+
+		if (d.getHours()) {
+			t.push(d.getHours() + "h");
+		}
+
+		if (d.getMinutes()) {
+			t.push(d.getMinutes() + "m");
+		}
+
+		if (d.getSeconds()) {
+			t.push(d.getSeconds() + "s");
+		}
+
+		if (d.getMilliseconds()) {
+			t.push(d.getMilliseconds() + "ms");
+		}
+
+		return t.join(" ");
+	}
 }
 
 class Log {
 	static log() {
 		this.line = [];
 
+		this.logSpent();
 		this.logFiles();
 		this.logName();
 		this.logPercent();
 		this.logSize();
+		this.logSpeed();
+		this.logLeft();
 
 		this.colorReset();
 
@@ -194,11 +268,20 @@ class Log {
 		process.stdout.write(this.line);
 	}
 
+	static logSpent() {
+		var time = Date.now() - Drive.startTime;
+
+		this.colorGray();
+		this.write("Spent:");
+		this.colorReset();
+		this.write(Util.formatTime(time));
+	}
+
 	static logFiles() {
 		this.colorGray();
 		this.write("Files:");
 		this.colorYelow();
-		this.write(Drive.currentIndex);
+		this.write(Drive.files.length - Drive.currentIndex);
 	}
 
 	static logName() {
@@ -214,8 +297,39 @@ class Log {
 	}
 
 	static logPercent() {
+		var percent = Drive.currentSizeUploaded / Drive.currentSize * 100;
+
 		this.colorYelow();
-		this.write((Drive.currentSizeUploaded / Drive.currentSize * 100).toFixed(2) + "%");
+		this.write(percent.toFixed(2) + "%");
+	}
+
+	static logSpeed() {
+		var speed = Drive.currentBytes / Drive.currentInstant * 1000;
+
+		if (speed > Drive.currentSizeUploaded) {
+			speed = Drive.currentSizeUploaded;
+		}
+
+		this.colorGray();
+		this.write("Speed:");
+		this.colorReset();
+		this.write(Util.formatSize(speed) + "/s");
+	}
+
+	static logLeft() {
+		var time = (Date.now() - Drive.startTime) / Drive.totalSizeUploaded * (Drive.totalSize - Drive.totalSizeUploaded);
+
+		this.colorGray();
+		this.write("Left:");
+		this.colorReset();
+		this.write(Util.formatTime(time));
+	}
+
+	static logTotalSize() {
+		this.colorGray();
+		this.write("TotalSize:");
+		this.colorReset();
+		this.write(Util.formatSize(Drive.totalSizeUploaded) + "/" + Util.formatSize(Drive.totalSize));
 	}
 
 	static write(item) {
@@ -282,7 +396,7 @@ class Log {
 			if (Drive.currentFile != undefined) {
 				context.log();
 			}
-		}, 1000/10);
+		}, 250);
 
 		this.timer = timer;
 	}
