@@ -198,7 +198,8 @@ class Util {
 			var aStats = fs.lstatSync(path.join("./", "upload", a));
 			var bStats = fs.lstatSync(path.join("./", "upload", b));
 
-			return aStats.size - bStats.size;
+			return bStats.size - aStats.size;
+			// return aStats.size - bStats.size;
 		});
 	}
 
