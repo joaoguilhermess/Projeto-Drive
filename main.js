@@ -135,7 +135,6 @@ class Drive {
 
 										context.currentInstant = Date.now() - last;
 
-
 										last = Date.now();
 
 										if (event.bytesRead == stats.size) {
@@ -156,7 +155,7 @@ class Drive {
 
 							this.totalSizeUploaded -= this.currentSizeUploaded;
 							
-							return await new Promise(function(resolve, reject) {
+							await new Promise(function(resolve, reject) {
 								setTimeout(resolve, 250);
 							});
 						}
