@@ -259,6 +259,7 @@ class Log {
 		this.logPercent();
 		this.logSize();
 		this.logSpeed();
+		this.logTotalSize();
 		this.logLeft();
 
 		this.colorReset();
@@ -316,6 +317,13 @@ class Log {
 		this.write(Util.formatSize(speed) + "/s");
 	}
 
+	static logTotalSize() {
+		this.colorGray();
+		this.write("TotalSize:");
+		this.colorReset();
+		this.write(Util.formatSize(Drive.totalSizeUploaded) + "/" + Util.formatSize(Drive.totalSize));
+	}
+
 	static logLeft() {
 		var time = (Date.now() - Drive.startTime) / Drive.totalSizeUploaded * (Drive.totalSize - Drive.totalSizeUploaded);
 
@@ -323,13 +331,6 @@ class Log {
 		this.write("Left:");
 		this.colorReset();
 		this.write(Util.formatTime(time));
-	}
-
-	static logTotalSize() {
-		this.colorGray();
-		this.write("TotalSize:");
-		this.colorReset();
-		this.write(Util.formatSize(Drive.totalSizeUploaded) + "/" + Util.formatSize(Drive.totalSize));
 	}
 
 	static write(item) {
