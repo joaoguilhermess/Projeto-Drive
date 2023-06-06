@@ -153,6 +153,8 @@ class Drive {
 							break;
 						} catch (e) {
 							console.error(e);
+
+							this.totalSizeUploaded -= this.currentSizeUploaded;
 							
 							return await new Promise(function(resolve, reject) {
 								setTimeout(resolve, 250);
