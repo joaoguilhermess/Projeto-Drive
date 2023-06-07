@@ -146,6 +146,7 @@ class Drive {
 								});
 							});
 
+							this.totalSize -= stats.size;
 							this.usedSize += stats.size;
 
 							this.totalDriveSizeUsed += stats.size;
