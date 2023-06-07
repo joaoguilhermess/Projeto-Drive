@@ -102,7 +102,7 @@ class Drive {
 
 				var stats = fs.lstatSync(filename);
 
-				if (this.info.storageQuota.limit - this.info.storageQuota.usage > stats.size) {
+				if (this.limitSize - this.usedSize > stats.size) {
 					while (true) {
 						try {
 							var stream = fs.createReadStream(filename);
@@ -145,6 +145,8 @@ class Drive {
 									}
 								});
 							});
+
+							this.usedSize += stats.size;
 
 							this.totalDriveSizeUsed += stats.size;
 							this.totalDriveSizeFree = this.totalDriveSize - this.totalDriveSizeUsed;
@@ -324,7 +326,7 @@ class Log {
 		this.colorGray();
 		this.write("TotalSize:");
 		this.colorReset();
-		this.write(Util.formatSize(Drive.totalSizeUploaded) + "/" + Util.formatSize(Drive.totalSize));
+		this.write(Util.formatSize(Drive.totalSizeUploaded) + "/" + Util.formatSize(Drive.totalSize) + "/" + Util.formatSize(Drive.limitSize - Drive.usedSize));
 	}
 
 	static logLeft() {
