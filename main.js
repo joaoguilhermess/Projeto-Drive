@@ -117,8 +117,8 @@ class Drive {
 							var last = Date.now();
 
 							var context = this;
-							await new Promise(function(resolve, reject) {
-								context.drive.files.create({
+							await new Promise(async function(resolve, reject) {
+								await context.drive.files.create({
 									requestBody: {
 										name: context.files[f]
 									},
