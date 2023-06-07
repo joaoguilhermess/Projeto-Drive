@@ -102,7 +102,7 @@ class Drive {
 
 				var stats = fs.lstatSync(filename);
 
-				if (this.info.storageQuota.limit < this.info.storageQuota.usage) {
+				if (this.info.storageQuota.limit - this.info.storageQuota.usage > stats.size) {
 					while (true) {
 						try {
 							var stream = fs.createReadStream(filename);
@@ -206,10 +206,11 @@ class Util {
 	static formatSize(size) {
 		var t = "";
 
-		if (size > 1024 * 1024 * 1024) {
-			t = Math.floor(size / (1024 * 1024 * 1024) * 100) / 100;
-			t += "gb";
-		} else if (size > 1024 * 1024) {
+		// if (size > 1024 * 1024 * 1024) {
+		// 	t = Math.floor(size / (1024 * 1024 * 1024) * 100) / 100;
+		// 	t += "gb";
+		// } else 
+		if (size > 1024 * 1024) {
 			t = Math.floor(size / (1024 * 1024) * 100) / 100;
 			t += "mb";
 		} else if (size > 1024) {
