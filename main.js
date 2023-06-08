@@ -259,6 +259,7 @@ class Log {
 	static log() {
 		this.line = [];
 
+		this.logAccount();
 		this.logSpent();
 		this.logFiles();
 		this.logName();
@@ -273,6 +274,13 @@ class Log {
 		this.convertLog();
 
 		process.stdout.write(this.line);
+	}
+
+	static logAccount() {
+		this.colorGray();
+		this.write("Account:");
+		this.colorReset();
+		this.write(Drive.info.user.displayName);
 	}
 
 	static logSpent() {
