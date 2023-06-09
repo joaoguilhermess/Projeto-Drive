@@ -230,8 +230,8 @@ class Util {
 	static formatTime(time) {
 		var t = [];
 
-		var d = new Date(0, 0, 0, 0, 0, 0, time);
-		// var d = new Date(0, 0, 0, 0, 0, 0, time + 24 * 60 * 60 * 1000);
+		// var d = new Date(0, 0, 0, 0, 0, 0, time);
+		var d = new Date(0, 0, 0, 0, 0, 0, time + 24 * 60 * 60 * 1000);
 
 		if (d.getDate() - 1) {
 			t.push(d.getDate() - 1 + "d");
