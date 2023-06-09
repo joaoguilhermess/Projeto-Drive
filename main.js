@@ -113,6 +113,7 @@ class Drive {
 							this.currentSizeUploaded = 0;
 							this.currentInstant = 0;
 							this.currentBytes = 0;
+							this.currentStart = Date.now();
 
 							var last = Date.now();
 
@@ -201,8 +202,8 @@ class Util {
 			var aStats = fs.lstatSync(path.join("./", "upload", a));
 			var bStats = fs.lstatSync(path.join("./", "upload", b));
 
-			return bStats.size - aStats.size;
-			// return aStats.size - bStats.size;
+			// return bStats.size - aStats.size;
+			return aStats.size - bStats.size;
 		});
 	}
 
@@ -229,7 +230,8 @@ class Util {
 	static formatTime(time) {
 		var t = [];
 
-		var d = new Date(0, 0, 0, 0, 0, 0, time + 24 * 60 * 60 * 1000);
+		var d = new Date(0, 0, 0, 0, 0, 0, time);
+		// var d = new Date(0, 0, 0, 0, 0, 0, time + 24 * 60 * 60 * 1000);
 
 		if (d.getDate() - 1) {
 			t.push(d.getDate() - 1 + "d");
@@ -319,11 +321,7 @@ class Log {
 	}
 
 	static logSpeed() {
-		var speed = Drive.currentBytes / Drive.currentInstant * 1000;
-
-		if (speed > Drive.currentSizeUploaded) {
-			speed = Drive.currentSizeUploaded;
-		}
+		var speed = Drive.currentSizeUploaded / (Date.now() - Drive.currentStart) * 1000;
 
 		this.colorGray();
 		this.write("Speed:");
@@ -344,7 +342,8 @@ class Log {
 		this.colorGray();
 		this.write("Left:");
 		this.colorReset();
-		this.write(Util.formatTime(time));
+		// this.write(Util.formatTime(time));
+		this.write(Util.formatTime(Math.abs(time)));
 	}
 
 	static write(item) {
