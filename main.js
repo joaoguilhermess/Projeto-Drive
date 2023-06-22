@@ -339,6 +339,10 @@ class Log {
 	static logLeft() {
 		var time = (Date.now() - Drive.startTime) / Drive.totalSizeUploaded * (Drive.totalSize - Drive.totalSizeUploaded);
 
+		var files = Drive.files.length - Drive.currentIndex;
+
+		time += 250 * files;
+
 		this.colorGray();
 		this.write("Left:");
 		this.colorReset();
