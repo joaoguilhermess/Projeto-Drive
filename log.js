@@ -1,12 +1,10 @@
 import Util from "./util.js";
 
 export default class Log {
-	static Init() {
-		this.line = [];
-	}
-
 	static start(condition, callbacks) {
 		var context = this;
+
+		this.line = [];
 
 		var timer = setInterval(function() {
 			if (condition()) {

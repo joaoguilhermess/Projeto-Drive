@@ -54,7 +54,36 @@ export default class Drive {
 	}
 
 	static async getDriveFiles() {
-		
+		var files = [];
+
+		var token = null;
+
+		while (true) {
+			if (!token) {
+				var list = await this.drive.files.list({
+					fields: "*"
+				});
+			} else {
+				var list = await this.drive.files.list({
+					fields: "*",
+					pageToken: token
+				});
+			}
+
+			list = list.data;
+
+			files = files.concat(list.files);
+
+			token = list.nextPageToken;
+
+			console.log(list.nextPageToken, files.length);
+
+			if (!list.nextPageToken) {
+				break;
+			}
+		}
+
+		return files;
 	}
 
 	static subtractSize(size) {
@@ -84,7 +113,7 @@ export default class Drive {
 	}
 
 	static async renameFile() {
-		
+
 	}
 
 	static async deleteFile() {

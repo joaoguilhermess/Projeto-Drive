@@ -6,9 +6,9 @@ class Upload {
 	static Init() {
 		this.startTime = Date.now();
 
-		this.start();
+		this.startLog();
 
-		Log.Init();
+		this.startUpload();
 	}
 
 	static getFiles() {
@@ -32,9 +32,9 @@ class Upload {
 		}
 	}
 
-	static async start() {
+	static startLog() {
 		var context = this;
-
+		
 		Log.start(function() {
 			return context.currentFile != undefined;
 		}, [
@@ -93,7 +93,64 @@ class Upload {
 				Log.write(Util.formatTime(time));
 			}
  		]);
+	}
 
+	static async upload(f) {
+		var context = this;
+
+		var filename = Util.joinPath("./", "files", this.files[f]);
+
+		var stats = Util.readStats(filename);
+
+		if (Drive.limitSize - Drive.usedSize > stats.size) {
+			while (true) {
+				try {
+					var stream = Util.readFile(filename);
+
+					this.currentFile = this.files[f];
+					this.currentIndex = f;
+					this.currentSize = stats.size;
+					this.currentSizeUploaded = 0;
+					this.currentInstant = 0;
+					this.currentBytes = 0;
+					this.currentStart = Date.now();
+
+					var last = Date.now();
+
+					await Drive.upload(this.currentFile, stream, function(bytesRead, resolve) {
+						context.currentBytes = bytesRead - context.currentSizeUploaded;
+
+						context.totalSizeUploaded += context.currentBytes;
+
+						context.currentSizeUploaded = bytesRead;
+
+						context.currentInstant = Date.now() - last;
+
+						last = Date.now();
+
+						if (bytesRead == stats.size) {
+							stream.on("close", function() {
+								setTimeout(resolve, 250);
+							});
+						}
+					});
+
+					this.totalSize -= stats.size;
+					Drive.subtractSize(stats.size);
+
+					break;
+				} catch (e) {
+					console.error(e);
+
+					await Util.delay(250);
+				}
+			}
+
+			Util.deleteFile("./", "files", this.currentFile);
+		}
+	}
+
+	static async startUpload() {
 		Drive.getAccounts();
 
 		await Drive.getTotalDriveSize();
@@ -110,56 +167,7 @@ class Upload {
 			Drive.getDriveSize();
 
 			for (var f = 0; f < this.files.length; f++) {
-				var filename = Util.joinPath("./", "files", this.files[f]);
-
-				var stats = Util.readStats(filename);
-
-				if (Drive.limitSize - Drive.usedSize > stats.size) {
-					while (true) {
-						try {
-							var stream = Util.readFile(filename);
-
-							this.currentFile = this.files[f];
-							this.currentIndex = f;
-							this.currentSize = stats.size;
-							this.currentSizeUploaded = 0;
-							this.currentInstant = 0;
-							this.currentBytes = 0;
-							this.currentStart = Date.now();
-
-							var last = Date.now();
-
-							await Drive.upload(this.currentFile, stream, function(bytesRead, resolve) {
-								context.currentBytes = bytesRead - context.currentSizeUploaded;
-
-								context.totalSizeUploaded += context.currentBytes;
-
-								context.currentSizeUploaded = bytesRead;
-
-								context.currentInstant = Date.now() - last;
-
-								last = Date.now();
-
-								if (bytesRead == stats.size) {
-									stream.on("close", function() {
-										setTimeout(resolve, 250);
-									});
-								}
-							});
-
-							this.totalSize -= stats.size;
-							Drive.subtractSize(stats.size);
-
-							break;
-						} catch (e) {
-							console.error(e);
-
-							await Util.delay(250);
-						}
-					}
-
-					Util.deleteFile("./", "files", this.currentFile);
-				}
+				await this.upload(f);
 			}
 		}
 

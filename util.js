@@ -75,7 +75,7 @@ export default class Util {
 			t += "kb";
 		} else {
 			t = size;
-			t += b;
+			t += "b";
 		}
 
 		return t;
