@@ -49,9 +49,11 @@ export default class Util {
 	}
 
 	static sortFiles(files) {
+		var context = this;
+
 		files.sort(function(b, a) {
-			var aStats = this.readStats("./", "files", a);
-			var bStats = this.readStats("./", "files", b);
+			var aStats = context.readStats("./", "files", a);
+			var bStats = context.readStats("./", "files", b);
 
 			return aStats.size - bStats.size;
 		});

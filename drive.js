@@ -8,7 +8,7 @@ export default class Drive {
 		this.accounts = list;
 	}
 
-	static authDrive(account) {
+	static async authDrive(account) {
 		var authorization = new google.auth.GoogleAuth({
 			keyFile: Util.joinPath("./", "credentials", account),
 			scopes: ["https://www.googleapis.com/auth/drive"]
@@ -18,6 +18,14 @@ export default class Drive {
 			version: "v3",
 			auth: authorization
 		});
+
+		try {
+			await drive.about.get({
+				fields: "*"
+			});
+		} catch (e) {
+			throw Error("Unauthorized: " + account);
+		}
 
 		this.drive = drive;
 	}
@@ -41,7 +49,7 @@ export default class Drive {
 		this.totalDriveSizeFree = 0;
 
 		for (var i = 0; i < this.accounts.length; i++) {
-			this.authDrive(this.accounts[i]);
+			await this.authDrive(this.accounts[i]);
 
 			await this.getDriveInfo();
 

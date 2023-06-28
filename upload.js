@@ -53,7 +53,7 @@ class Upload {
 			}, function logFiles() {
 				Log.colorGray();
 				Log.write("Files:");
-				Log.colorReset();
+				Log.colorYelow();
 				Log.write(context.files.length - context.currentIndex);
 			}, function logName() {
 				Log.colorGray();
@@ -81,7 +81,7 @@ class Upload {
 				Log.colorReset();
 				Log.write(Util.formatSize(context.totalSizeUploaded) + "/" + Util.formatSize(context.totalSize) + "/" + Util.formatSize(Drive.limitSize - Drive.usedSize));
 			}, function logLeft() {
-				var time = (Date.now() - context.startTime) / context.totalSizeUploaded * (Drive.totalSize - context.totalSizeUploaded);
+				var time = (Date.now() - context.startTime) / context.totalSizeUploaded * (context.totalSize - context.totalSizeUploaded);
 
 				var files = context.files.length - context.currentIndex;
 
@@ -90,7 +90,7 @@ class Upload {
 				Log.colorGray();
 				Log.write("Left:");
 				Log.colorReset();
-				Log.write(Util.formatTime(time));
+				Log.write(Util.formatTime(Math.abs(time)));
 			}
  		]);
 	}
@@ -147,6 +147,8 @@ class Upload {
 			}
 
 			Util.deleteFile("./", "files", this.currentFile);
+
+			Log.next();
 		}
 	}
 
@@ -160,7 +162,7 @@ class Upload {
 		this.getSize();
 
 		for (var a = 0; a < Drive.accounts.length; a++) {
-			Drive.authDrive(Drive.accounts[a]);
+			await Drive.authDrive(Drive.accounts[a]);
 
 			await Drive.getDriveInfo();
 

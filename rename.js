@@ -8,7 +8,7 @@ class Rename {
 		this.files = [];
 
 		for (var a = 0; a < Drive.accounts.length; a++) {
-			Drive.authDrive(Drive.accounts[a]);
+			await Drive.authDrive(Drive.accounts[a]);
 
 			await Drive.getDriveInfo();
 
