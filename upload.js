@@ -4,7 +4,7 @@ import Log from "./log.js";
 
 class Upload {
 	static Init() {
-		this.startTime = Date.now();
+		this.initTime = Date.now();
 
 		this.startLog();
 
@@ -44,7 +44,7 @@ class Upload {
 				Log.colorReset();
 				Log.write(Drive.info.user.displayName);
 			}, function logSpent() {
-				var time = Date.now() - context.startTime;
+				var time = Date.now() - context.initTime;
 
 				Log.colorGray();
 				Log.write("Spent:");
@@ -81,16 +81,17 @@ class Upload {
 				Log.colorReset();
 				Log.write(Util.formatSize(context.totalSizeUploaded) + "/" + Util.formatSize(context.totalSize) + "/" + Util.formatSize(Drive.limitSize - Drive.usedSize));
 			}, function logLeft() {
-				var time = (Date.now() - context.startTime) / context.totalSizeUploaded * (context.totalSize - context.totalSizeUploaded);
+				var time = Date.now() - context.startTime;
 
-				var files = context.files.length - context.currentIndex;
+				time /= context.totalSizeUploaded;
 
-				time += 250 * files;
+				time *= context.totalSize;
 
 				Log.colorGray();
 				Log.write("Left:");
 				Log.colorReset();
-				Log.write(Util.formatTime(Math.abs(time)));
+
+				Log.write(Util.formatTime(time));
 			}
  		]);
 	}
@@ -167,6 +168,8 @@ class Upload {
 			await Drive.getDriveInfo();
 
 			Drive.getDriveSize();
+
+			this.startTime = Date.now();
 
 			for (var f = 0; f < this.files.length; f++) {
 				await this.upload(f);
