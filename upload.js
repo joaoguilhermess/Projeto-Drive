@@ -85,7 +85,11 @@ class Upload {
 
 				time /= context.totalSizeUploaded;
 
-				time *= context.totalSize;
+				if (context.totalSize > Drive.limitSize - Drive.usedSize) {
+					time *= Drive.limitSize - Drive.usedSize;
+				} else {
+					time *= context.totalSize;
+				}
 
 				Log.colorGray();
 				Log.write("Left:");
