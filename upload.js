@@ -54,7 +54,7 @@ class Upload {
 				Log.colorGray();
 				Log.write("Files:");
 				Log.colorYelow();
-				Log.write(context.files.length - context.currentIndex);
+				Log.write(context.files.length);
 			}, function logName() {
 				Log.colorGray();
 				Log.write("Name:");
@@ -100,10 +100,10 @@ class Upload {
  		]);
 	}
 
-	static async upload(f) {
+	static async upload() {
 		var context = this;
 
-		var filename = Util.joinPath("./", "files", this.files[f]);
+		var filename = Util.joinPath("./", "files", this.files[0]);
 
 		var stats = Util.readStats(filename);
 
@@ -112,8 +112,7 @@ class Upload {
 				try {
 					var stream = Util.readFile(filename);
 
-					this.currentFile = this.files[f];
-					this.currentIndex = f;
+					this.currentFile = this.files[0];
 					this.currentSize = stats.size;
 					this.currentSizeUploaded = 0;
 					this.currentInstant = 0;
@@ -175,8 +174,10 @@ class Upload {
 
 			this.startTime = Date.now();
 
-			for (var f = 0; f < this.files.length; f++) {
-				await this.upload(f);
+			while (this.files.length > 0) {
+				await this.upload();
+
+				this.files.slice(1);
 			}
 		}
 
