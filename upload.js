@@ -162,11 +162,11 @@ class Upload {
 
 		await Drive.getTotalDriveSize();
 
-		this.getFiles();
-
-		this.getSize();
-
 		for (var a = 0; a < Drive.accounts.length; a++) {
+			this.getFiles();
+
+			this.getSize();
+
 			await Drive.authDrive(Drive.accounts[a]);
 
 			await Drive.getDriveInfo();
