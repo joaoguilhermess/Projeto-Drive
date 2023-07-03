@@ -100,10 +100,10 @@ class Upload {
  		]);
 	}
 
-	static async upload() {
+	static async upload(f) {
 		var context = this;
 
-		var filename = Util.joinPath("./", "files", this.files[0]);
+		var filename = Util.joinPath("./", "files", this.files[f]);
 
 		var stats = Util.readStats(filename);
 
@@ -112,7 +112,8 @@ class Upload {
 				try {
 					var stream = Util.readFile(filename);
 
-					this.currentFile = this.files[0];
+					this.currentFile = this.files[f];
+					this.currentIndex = f;
 					this.currentSize = stats.size;
 					this.currentSizeUploaded = 0;
 					this.currentInstant = 0;
@@ -141,6 +142,8 @@ class Upload {
 
 					this.totalSize -= stats.size;
 					Drive.subtractSize(stats.size);
+
+					this.files.splice(this.currentIndex, 1);
 
 					break;
 				} catch (e) {
@@ -174,10 +177,8 @@ class Upload {
 
 			this.startTime = Date.now();
 
-			while (this.files.length > 0) {
-				await this.upload();
-
-				this.files.slice(1);
+			for (var i = 0; i < this.files.length; i++) {
+				await this.upload(i);
 			}
 		}
 
