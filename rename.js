@@ -28,7 +28,7 @@ class Rename {
 		];
 
 		var current = 0;
-		var max = 10;		
+		var max = 25;		
 
 		for (var a = 0; a < Drive.accounts.length; a++) {
 			await Drive.authDrive(Drive.accounts[a]);
