@@ -42,7 +42,7 @@ class Rename {
 
 						if (name) {
 							console.log(files[i].name, "=>", name);
-							console.log(await Drive.renameFile(files[i].id, name));
+							await Drive.renameFile(files[i].id, name);
 
 							break;
 						} else {
