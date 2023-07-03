@@ -61,9 +61,7 @@ export default class Drive {
 		}
 	}
 
-	static async getDriveFiles() {
-		var files = [];
-
+	static async iterateDriveFiles(fun) {
 		var token = null;
 
 		while (true) {
@@ -80,18 +78,14 @@ export default class Drive {
 
 			list = list.data;
 
-			files = files.concat(list.files);
+			await fun(list.files);
 
 			token = list.nextPageToken;
-
-			console.log(list.nextPageToken, files.length);
 
 			if (!list.nextPageToken) {
 				break;
 			}
 		}
-
-		return files;
 	}
 
 	static subtractSize(size) {
@@ -120,11 +114,18 @@ export default class Drive {
 		});
 	}
 
-	static async renameFile() {
-
+	static async renameFile(id, name) {
+		return await this.drive.files.update({
+			fileId: id,
+			requestBody: {
+				name: name
+			}
+		});
 	}
 
-	static async deleteFile() {
-
+	static async deleteFile(id) {
+		return await this.drive.files.delete({
+			fileId: id
+		});
 	}
 }
