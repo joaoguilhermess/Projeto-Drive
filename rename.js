@@ -24,11 +24,26 @@ class Rename {
 				}
 
 				return;
+			},
+			function(name) {
+				var args = name.split("-");
+
+				if (args[0] == "VID") {
+					args = args.slice(1);
+
+					args = args.join("_");
+
+					args = args.split(".");
+
+					if (args[0].length == 15) {
+						return args.join(".");
+					}
+				}
 			}
 		];
 
 		var current = 0;
-		var max = 25;		
+		var max = 250;
 
 		for (var a = 0; a < Drive.accounts.length; a++) {
 			await Drive.authDrive(Drive.accounts[a]);
@@ -44,12 +59,15 @@ class Rename {
 						name = context.filters[k](name);
 
 						if (name) {
-							console.log(files[i].name, "=>", name);
 							if (current > max) {
 								await Drive.renameFile(files[i].id, name);
+
 								current -= 1;
 							} else {
-								Drive.renameFile(files[i].id, name);
+								Drive.renameFile(files[i].id, name).then(function(...args) {
+									console.log(...args);
+								}, files[i].name, "=>", name);
+
 								current += 1;
 							}
 
