@@ -118,4 +118,14 @@ export default class Util {
 			setTimeout(resolve, time);
 		});
 	}
+
+	static formatNumber(n, length) {
+		n = n.toString();
+
+		while (n.length < length) {
+			n = 0 + n;
+		}
+
+		return n;
+	}
 }

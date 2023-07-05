@@ -128,4 +128,15 @@ export default class Drive {
 			fileId: id
 		});
 	}
+
+	static async shareFile(id, email) {
+		return await this.drive.permissions.create({
+			fileId: id,
+			requestBody: {
+				type: "user",
+				role: "writer",
+				emailAddress: email
+			}
+		});
+	}
 }
