@@ -16,22 +16,34 @@ class Share {
 			var context = this;
 			await Drive.iterateDriveFiles(async function(files) {
 				for (var i = 0; i < files.length; i++) {
-					if (!files[i].shared) {
-						try {
-							if (current > max) {
-								await Drive.shareFile(files[i].id, "jg1453647@gmail.com");
+					var name = files[i].name;
 
-								console.log("shared:", files[i].name);
-						
-								current -= 1;
-							} else {
-								Drive.shareFile(files[i].id, "jg1453647@gmail.com").catch(function() {});
+					name = name.split(".");
 
-								console.log("shared:", files[i].name);
+					name = name[0];
 
-								current += 1;
+					name = name.split("_");
+
+					if (name[0].length == 8) {
+						if (name[1].length == 6) {
+							if (!files[i].shared) {
+								try {
+									if (current > max) {
+										await Drive.shareFile(files[i].id, "jg1453647@gmail.com");
+
+										console.log("shared:", files[i].name);
+								
+										current -= 1;
+									} else {
+										Drive.shareFile(files[i].id, "jg1453647@gmail.com").catch(function() {});
+
+										console.log("shared:", files[i].name);
+
+										current += 1;
+									}
+								} catch {}
 							}
-						} catch {}
+						}
 					}
 				}
 			});
