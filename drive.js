@@ -139,4 +139,11 @@ export default class Drive {
 			}
 		});
 	}
+
+	static async unShareFile(file, id) {
+		return await this.drive.permissions.delete({
+			fileId: file,
+			permissionId: id
+		});
+	}
 }

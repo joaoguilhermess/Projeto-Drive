@@ -10,7 +10,7 @@ class Rename {
 		this.files = 0;
 
 		var current = 0;
-		var max = 100;
+		var max = 10;
 
 		for (var a = 0; a < Drive.accounts.length; a++) {
 			await Drive.authDrive(Drive.accounts[a]);
@@ -27,15 +27,20 @@ class Rename {
 
 						if (name) {
 							if (current > max) {
+								current += 1;
+
 								await Drive.renameFile(files[i].id, name);
 								console.log(files[i].name, "=>", name);
 
 								current -= 1;
 							} else {
-								Drive.renameFile(files[i].id, name);
-								console.log(files[i].name, "=>", name);
-
 								current += 1;
+
+								Drive.renameFile(files[i].id, name).then(function() {
+									current -= 1;
+								});
+
+								console.log(files[i].name, "=>", name);
 							}
 
 							break;
