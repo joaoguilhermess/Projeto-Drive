@@ -13,11 +13,18 @@ class Share {
 
 			await Drive.getDriveInfo();
 
-			var context = this;
+			console.log("Account:", Drive.accounts[a]);
+
+			var iterated = 0;
+
 			await Drive.iterateDriveFiles(async function(files) {
-				for (var i = 0; i < files.length; i++) {
+				for (let i = 0; i < files.length; i++) {
 					try {
-						var name = files[i].name;
+						iterated += 1;
+
+						process.stdout.write("\rIterated: " + iterated);
+
+						let name = files[i].name;
 
 						name = name.split(".");
 
@@ -34,20 +41,20 @@ class Share {
 
 											await Drive.shareFile(files[i].id, "jg1453647@gmail.com");
 
-											console.log("shared:", files[i].name);
+											// process.stdout.write("\rIterated: " + iterated + " shared: " + files[i].name);
+											process.stdout.write("\rIterated: " + iterated);
 									
 											current -= 1;
 										} else {
-											let n = files[i].name;
-
 											current += 1;
-
+											
 											Drive.shareFile(files[i].id, "jg1453647@gmail.com").then(function() {
 												current -= 1;
 
-												console.log("shared:", n);
+												// process.stdout.write("\rIterated: " + iterated + " shared: " + files[i].name);
+												process.stdout.write("\rIterated: " + iterated);
 											}).catch(function(e) {
-												console.log(e);
+												current -= 1;
 											});
 										}
 									} catch (e) {
@@ -57,10 +64,11 @@ class Share {
 							}
 						}
 					} catch (e) {
-						console.log(e);
 					}
 				}
 			});
+
+			console.log("");
 		}
 	}
 }
