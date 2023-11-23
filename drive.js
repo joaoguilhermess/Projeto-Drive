@@ -132,6 +132,7 @@ export default class Drive {
 	static async shareFile(id, email) {
 		return await this.drive.permissions.create({
 			fileId: id,
+			sendNotificationEmail: "false",
 			requestBody: {
 				type: "user",
 				role: "writer",

@@ -6,7 +6,7 @@ class Share {
 		Drive.getAccounts();
 
 		var current = 0;
-		var max = 10;
+		var max = 50;
 
 		for (var a = 0; a < Drive.accounts.length; a++) {
 			await Drive.authDrive(Drive.accounts[a]);
@@ -16,79 +16,50 @@ class Share {
 			var context = this;
 			await Drive.iterateDriveFiles(async function(files) {
 				for (var i = 0; i < files.length; i++) {
+					try {
+						var name = files[i].name;
 
-					if (files[i].shared) {
-						if (current > max) {
-							for (var k = 0; k < files[i].permissions.length; k++) {
-								if (files[i].permissions[k].emailAddress == "jg1453647@gmail.com") {
-									current += 1;
-			
-									console.log("unSharing:", files[i].name);
+						name = name.split(".");
 
-									await Drive.unShareFile(files[i].id, files[i].permissions[k].id);
+						name = name[0];
 
-									current -= 1;
+						name = name.split("_");
 
-									break;
-								}
-							}
-						} else {
-							for (var k = 0; k < files[i].permissions.length; k++) {
-								if (files[i].permissions[k].emailAddress == "jg1453647@gmail.com") {
-									current += 1;
+						if (name[0].length == 8) {
+							if (name[1].length == 6) {
+								if (!files[i].shared) {
+									try {
+										if (current > max) {
+											current += 1;
 
-									console.log("unSharing:", files[i].name);
+											await Drive.shareFile(files[i].id, "jg1453647@gmail.com");
 
-									Drive.unShareFile(files[i].id, files[i].permissions[k].id).then(function() {
-										current -= 1;
-									});
+											console.log("shared:", files[i].name);
+									
+											current -= 1;
+										} else {
+											let n = files[i].name;
 
-									break;
+											current += 1;
+
+											Drive.shareFile(files[i].id, "jg1453647@gmail.com").then(function() {
+												current -= 1;
+
+												console.log("shared:", n);
+											}).catch(function(e) {
+												console.log(e);
+											});
+										}
+									} catch (e) {
+										console.log(e);
+									}
 								}
 							}
 						}
-					} else {
-						console.log("not shared:", files[i].name);
+					} catch (e) {
+						console.log(e);
 					}
 				}
-
-				// for (var i = 0; i < files.length; i++) {
-				// 	console.log(files[i]);
-
-				// 	continue;
-
-				// 	var name = files[i].name;
-
-				// 	name = name.split(".");
-
-				// 	name = name[0];
-
-				// 	name = name.split("_");
-
-				// 	if (name[0].length == 8) {
-				// 		if (name[1].length == 6) {
-				// 			if (!files[i].shared) {
-				// 				try {
-				// 					if (current > max) {
-				// 						await Drive.shareFile(files[i].id, "jg1453647@gmail.com");
-
-				// 						console.log("shared:", files[i].name);
-								
-				// 						current -= 1;
-				// 					} else {
-				// 						Drive.shareFile(files[i].id, "jg1453647@gmail.com").catch(function() {});
-
-				// 						console.log("shared:", files[i].name);
-
-				// 						current += 1;
-				// 					}
-				// 				} catch (e) {
-				// 					console.log(e);
-				// 				}
-				// 			}
-				// 		}
-				// 	}
-				// }
 			});
 		}
 	}
