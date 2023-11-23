@@ -1,0 +1,44 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	outline: 0;
+	border: 0;
+}
+
+html {
+	display: flex;
+	height: 100vh;
+	width: 100vw;
+}
+
+body {
+	display: flex;
+	height: 100vh;
+	width: 100vw;
+	background-color: #000000;
+}
+
+.main {
+	display: flex;
+	height: 100%;
+	width: 100%;
+	flex-direction: row;
+	flex-wrap: wrap;
+	overflow-y: auto;
+	padding: 2.5px;
+}
+
+.main .container {
+	display: flex;
+	width: calc(100%/5);
+	justify-content: center;
+	align-items: center;
+	padding: 2.5px;
+}
+
+.main .container .image {
+	display: flex;
+	height: fit-content;
+	width: 100%;
+}

@@ -40,8 +40,7 @@ class Share {
 											current += 1;
 
 											await Drive.shareFile(files[i].id, "jg1453647@gmail.com");
-
-											// process.stdout.write("\rIterated: " + iterated + " shared: " + files[i].name);
+											
 											process.stdout.write("\rIterated: " + iterated);
 									
 											current -= 1;
@@ -50,8 +49,7 @@ class Share {
 											
 											Drive.shareFile(files[i].id, "jg1453647@gmail.com").then(function() {
 												current -= 1;
-
-												// process.stdout.write("\rIterated: " + iterated + " shared: " + files[i].name);
+												
 												process.stdout.write("\rIterated: " + iterated);
 											}).catch(function(e) {
 												current -= 1;

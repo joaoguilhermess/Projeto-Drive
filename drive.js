@@ -114,6 +114,15 @@ export default class Drive {
 		});
 	}
 
+	static async downloadFile(id) {
+		return await this.drive.files.get({
+			fileId: id,
+			alt: "media"
+		}, {
+			responseType: "stream"
+		});
+	}
+
 	static async renameFile(id, name) {
 		return await this.drive.files.update({
 			fileId: id,

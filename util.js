@@ -18,8 +18,16 @@ export default class Util {
 		return fs.lstatSync(this.joinPath(...args));
 	}
 
+	static writeFile(path, content) {
+		return fs.writeFileSync(path, content);
+	}
+
 	static renameFile(from, to) {
-		fs.renameSync(from, to);
+		return fs.renameSync(from, to);
+	}
+
+	static getBasename(...args) {
+		return path.basename(this.joinPath("...args"));
 	}
 
 	static deleteDir(...args) {
