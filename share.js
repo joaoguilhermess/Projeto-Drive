@@ -32,8 +32,8 @@ class Share {
 
 						name = name.split("_");
 
-						if (name[0].length == 8) {
-							if (name[1].length == 6) {
+						// if (name[0].length == 8) {
+							// if (name[1].length == 6) {
 								if (!files[i].shared) {
 									try {
 										if (current > max) {
@@ -59,14 +59,14 @@ class Share {
 										console.log(e);
 									}
 								}
-							}
-						}
+							// }
+						// }
 					} catch (e) {
 					}
 				}
 			});
 
-			console.log("");
+			console.log("\n");
 		}
 	}
 }
