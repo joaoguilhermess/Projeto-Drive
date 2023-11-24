@@ -19,7 +19,8 @@ class Preview {
 						let f = {
 							id: files[i].id,
 							name: files[i].name,
-							preview: files[i].thumbnailLink
+							preview: files[i].thumbnailLink,
+							original: files[i].webViewLink
 						};
 
 						list.push(f);
@@ -34,7 +35,7 @@ class Preview {
 			Util.createDir("preview");
 		}
 
-		var max = 25;
+		var max = 50;
 
 		var current = 0;
 
