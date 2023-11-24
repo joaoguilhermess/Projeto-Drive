@@ -8,6 +8,8 @@ class Server {
 		this.addIndex();
 
 		this.addPublic();
+
+		this.addPreview();
 	}
 
 	static start() {
@@ -33,6 +35,18 @@ class Server {
 			var url = decodeURIComponent(req.url).split("/").slice(2);
 
 			var p = Util.joinPath("public", url[0]);
+
+			var stream = Util.readFile(p);
+
+			stream.pipe(res);
+		});
+	}
+
+	static addPreview() {
+		this.app.get("/preview/*", function(req, res) {
+			var url = decodeURIComponent(req.url).split("/").slice(2);
+
+			var p = Util.joinPath("preview", url[0]);
 
 			var stream = Util.readFile(p);
 

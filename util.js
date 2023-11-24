@@ -6,6 +6,10 @@ export default class Util {
 		return path.join(...args);
 	}
 
+	static verifyPath(...args) {
+		return fs.existsSync(this.joinPath(...args));
+	}
+
 	static readDir(...args) {
 		return fs.readdirSync(this.joinPath(...args));
 	}
@@ -22,6 +26,10 @@ export default class Util {
 		return fs.writeFileSync(path, content);
 	}
 
+	static createDir(...args) {
+		return fs.mkdirSync(this.joinPath(...args));
+	}
+
 	static renameFile(from, to) {
 		return fs.renameSync(from, to);
 	}
@@ -31,11 +39,15 @@ export default class Util {
 	}
 
 	static deleteDir(...args) {
-		fs.rmdirSync(this.joinPath(...args));
+		return fs.rmdirSync(this.joinPath(...args));
 	}
 
 	static deleteFile(...args) {
-		fs.unlinkSync(this.joinPath(...args));
+		return fs.unlinkSync(this.joinPath(...args));
+	}
+
+	static writeStream(...args) {
+		return fs.createWriteStream(this.joinPath(...args));
 	}
 
 	static fixFolders() {

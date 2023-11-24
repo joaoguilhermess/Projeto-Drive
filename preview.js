@@ -1,5 +1,6 @@
 import Util from "./util.js";
 import Drive from "./drive.js";
+import fetch from "node-fetch";
 
 class Preview {
 	static async Init() {
@@ -22,12 +23,48 @@ class Preview {
 						};
 
 						list.push(f);
+
+						process.stdout.write("\r" + list.length + " " + files[i].name);
 					}
 				}
-
-				Util.writeFile(Util.joinPath("public", "preview.json"), JSON.stringify(list, null, "\t"));
 			});
 		}
+
+		if (!Util.verifyPath("preview")) {
+			Util.createDir("preview");
+		}
+
+		var max = 25;
+
+		var current = 0;
+
+		for (let i = 0; i < list.length; i++) {
+			if (!Util.verifyPath("preview", list[i].name)) {
+				var p = new Promise(async function(resolve, reject) {
+					current += 1;
+
+					let f = await fetch(list[i].preview);
+
+					let stream = Util.writeStream("preview", list[i].name);
+
+					stream.on("close", resolve);
+
+					f.body.pipe(stream);
+				}).then(function() {
+					current -= 1;
+				});
+
+				if (current > max) {
+					await p;
+				}
+
+				list[i].preview = "/preview/" + list[i].name;
+
+				process.stdout.write("\r" + i + list[i].preview);
+			}
+		}
+
+		Util.writeFile(Util.joinPath("public", "preview.json"), JSON.stringify(list, null, "\t"));
 	}
 }
 
