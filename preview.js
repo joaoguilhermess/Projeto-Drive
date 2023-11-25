@@ -35,7 +35,7 @@ class Preview {
 			Util.createDir("preview");
 		}
 
-		var max = 50;
+		var max = 40;
 
 		var current = 0;
 
@@ -46,7 +46,7 @@ class Preview {
 
 					let f = await fetch(list[i].preview);
 
-					let stream = Util.writeStream("preview", list[i].name);
+					let stream = Util.writeStream("preview", list[i].name + ".jpg");
 
 					stream.on("close", resolve);
 
@@ -59,7 +59,7 @@ class Preview {
 					await p;
 				}
 
-				list[i].preview = "/preview/" + list[i].name;
+				list[i].preview = "/preview/" + list[i].name + ".jpg";
 
 				process.stdout.write("\r" + i + list[i].preview);
 			}

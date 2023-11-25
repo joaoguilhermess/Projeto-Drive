@@ -13,6 +13,10 @@ class Drive {
 		await this.getList();
 
 		this.addAtEnd(0, this.size);
+
+		// setInterval(function() {
+			// Drive.main.scrollBy(0, 768/4);
+		// }, 1000/2);
 	}
 
 	static addScroll() {
@@ -22,8 +26,6 @@ class Drive {
 			var max = event.target.scrollHeight - event.target.offsetHeight;
 
 			if (event.target.scrollTop <= 50) {
-				console.log("top");
-
 				var index = context.index - context.size - 6;
 
 				if (index >= 0) {
@@ -36,8 +38,6 @@ class Drive {
 			}
 
 			if (event.target.scrollTop >= max -50) {
-				console.log("bottom");
-
 				context.addAtEnd(context.index, context.columns);
 
 				context.removeFromStart(context.columns);
@@ -81,7 +81,6 @@ class Drive {
 				}
 			} else {
 				return -999;
-				// return 999;
 			}
 		});
 
