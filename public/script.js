@@ -4,6 +4,7 @@ class Drive {
 
 		this.columns = 6;
 		this.rows = 5;
+		this.height = 3;
 		this.size = this.columns * this.rows;
 
 		this.index = 0;
@@ -14,9 +15,21 @@ class Drive {
 
 		this.addAtEnd(0, this.size);
 
-		// setInterval(function() {
-			// Drive.main.scrollBy(0, 768/4);
-		// }, 1000/2);
+		// var interval;
+
+		// window.addEventListener("keypress", function(event) {
+		// 	if (event.key == "g") {
+		// 		try {
+		// 			clearInterval(interval);
+		// 		} catch {}
+
+		// 		interval = setInterval(function() {
+		// 			Drive.main.scrollBy(0, 768/1);
+		// 		}, 1000/24);
+		// 	} else if (event.key == "t") {
+		// 		clearInterval(interval);
+		// 	}
+		// });
 	}
 
 	static addScroll() {
@@ -31,7 +44,7 @@ class Drive {
 				if (index >= 0) {
 					context.addAtStart(index, context.columns);
 
-					context.main.scrollTop = document.body.offsetHeight/2;
+					context.main.scrollTop = document.body.offsetHeight/context.height;
 
 					context.removeFromEnd(context.columns);
 				}
@@ -73,11 +86,11 @@ class Drive {
 				nameB = nameB.join();
 
 				if (nameA > nameB) {
-					// return 1;
-					return -1;
-				} else {
-					// return -1;
 					return 1;
+					// return -1;
+				} else {
+					return -1;
+					// return 1;
 				}
 			} else {
 				return -999;
