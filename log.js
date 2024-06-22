@@ -9,7 +9,11 @@ export default class Log {
 		var timer = setInterval(function() {
 			if (condition()) {
 				for (var i = 0; i < callbacks.length; i++) {
-					callbacks[i]();
+					try {
+						callbacks[i]();
+					} catch (e) {
+						console.error(e);
+					}
 				}
 
 				context.colorReset();
